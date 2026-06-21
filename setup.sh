@@ -57,25 +57,76 @@ fi
 # 4. Setup Env Files
 echo -e "\nInitializing environment files..."
 KOMODO_ENV="komodo/.env"
-KOMODO_EXAMPLE="komodo/.env.example"
 
 if [ -f "$KOMODO_ENV" ]; then
     echo -e "'$KOMODO_ENV' already exists."
 else
-    if [ -f "$KOMODO_EXAMPLE" ]; then
-        cp "$KOMODO_EXAMPLE" "$KOMODO_ENV"
-        echo -e "${GREEN}Created '$KOMODO_ENV' from example template.${NC}"
-        echo -e "${RED}ACTION REQUIRED: Edit '$KOMODO_ENV' to set secure passwords!${NC}"
+    # Helper to generate secure random keys
+    if command -v openssl &> /dev/null; then
+        GEN_SECRET() { openssl rand -hex 16; }
+        GEN_JWT() { openssl rand -hex 32; }
+    elif command -v python3 &> /dev/null; then
+        GEN_SECRET() { python3 -c "import secrets; print(secrets.token_hex(16))"; }
+        GEN_JWT() { python3 -c "import secrets; print(secrets.token_hex(32))"; }
     else
-        echo -e "${RED}Error: '$KOMODO_EXAMPLE' not found.${NC}"
-        exit 1
+        GEN_SECRET() { tr -dc 'a-f0-9' </dev/urandom | head -c 32; }
+        GEN_JWT() { tr -dc 'a-f0-9' </dev/urandom | head -c 64; }
     fi
+
+    # Prompt for admin username
+    read -p "Enter custom admin username (default: vps_admin): " ADMIN_USER
+    ADMIN_USER=${ADMIN_USER:-vps_admin}
+
+    # Generate credentials
+    DB_USER="komodo_db_admin"
+    DB_PASS=$(GEN_SECRET)
+    ADMIN_PASS=$(GEN_SECRET)
+    JWT_SECRET=$(GEN_JWT)
+    WEBHOOK_SECRET=$(GEN_JWT)
+
+    # Write .env file
+    cat <<EOF > "$KOMODO_ENV"
+# Database Credentials
+KOMODO_DB_USER=$DB_USER
+KOMODO_DB_PASSWORD=$DB_PASS
+
+# Initial Setup
+KOMODO_ADMIN_USER=$ADMIN_USER
+KOMODO_ADMIN_PASSWORD=$ADMIN_PASS
+
+# Secrets
+KOMODO_JWT_SECRET=$JWT_SECRET
+KOMODO_WEBHOOK_SECRET=$WEBHOOK_SECRET
+EOF
+
+    echo -e "${GREEN}Successfully generated '$KOMODO_ENV'!${NC}"
+    echo -e "\n--------------------------------------------------"
+    echo -e "  ${BLUE}YOUR DEPLOYED ADMINISTRATIVE CREDENTIALS${NC}"
+    echo -e "--------------------------------------------------"
+    echo -e "  Admin Username: ${GREEN}$ADMIN_USER${NC}"
+    echo -e "  Admin Password: ${GREEN}$ADMIN_PASS${NC}"
+    echo -e "--------------------------------------------------"
+    echo -e "  (Keep these details secure! They have been saved to $KOMODO_ENV)${NC}\n"
 fi
 
-echo -e "\n${GREEN}Setup completed successfully!${NC}"
-echo -e "To start your stack, run:"
-echo -e "  docker compose -f socket-proxy/docker-compose.yml up -d"
-echo -e "  docker compose -f npm/docker-compose.yml up -d"
-echo -e "  docker compose -f dozzle/docker-compose.yml up -d"
-echo -e "  docker compose -f uptime/docker-compose.yml up -d"
-echo -e "  docker compose -f komodo/docker-compose.yml up -d"
+# 5. Start infrastructure confirmation
+echo -e "\nWould you like to start the docker containers now? (Y/n)"
+read -r START_INFRA
+START_INFRA=${START_INFRA:-Y}
+
+if [[ "$START_INFRA" =~ ^[Yy]$ ]]; then
+    echo -e "\nStarting infrastructure..."
+    docker compose -f socket-proxy/docker-compose.yml up -d
+    docker compose -f npm/docker-compose.yml up -d
+    docker compose -f dozzle/docker-compose.yml up -d
+    docker compose -f uptime/docker-compose.yml up -d
+    docker compose -f komodo/docker-compose.yml up -d
+    echo -e "\n${GREEN}Infrastructure successfully started!${NC}"
+else
+    echo -e "\nSetup completed. You can start the infrastructure manually using:"
+    echo -e "  docker compose -f socket-proxy/docker-compose.yml up -d"
+    echo -e "  docker compose -f npm/docker-compose.yml up -d"
+    echo -e "  docker compose -f dozzle/docker-compose.yml up -d"
+    echo -e "  docker compose -f uptime/docker-compose.yml up -d"
+    echo -e "  docker compose -f komodo/docker-compose.yml up -d"
+fi
