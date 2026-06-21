@@ -1,0 +1,10 @@
+# Ignore all container data and state
+**/data/
+**/letsencrypt/
+
+# Secrets
+**/.env
+
+# OS
+.DS_Store
+Thumbs.db
