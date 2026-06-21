@@ -49,6 +49,19 @@ docker compose -f uptime/docker-compose.yml up -d
 docker compose -f komodo/docker-compose.yml up -d
 ```
 
+### 4. Accessing the Nginx Proxy Manager Console
+Since NPM's admin port `81` is bound to `127.0.0.1` (localhost) for security, you cannot access it directly via your public IP. To access it for the first time:
+
+1. **Open an SSH Tunnel** from your local machine:
+   ```bash
+   ssh -L 8181:127.0.0.1:81 your-vps-user@your-vps-ip
+   ```
+2. **Open your browser** and navigate to `http://localhost:8181`.
+3. **Login with NPM default credentials**:
+   * Email: `admin@example.com`
+   * Password: `changeme`
+   *(You will be prompted to change these immediately).*
+
 ---
 
 ## Tailscale & Security Integration (Access Lists)
