@@ -27,24 +27,15 @@ cd /ops/vps-architecture
 ```
 
 ### 2. Run Setup Script
-Make the setup script executable and run it to verify prerequisites, check for Swap memory, create external networks, and initialize environment files:
+Make the setup script executable and run it to verify prerequisites, check for Swap memory, create external networks, prompt for your admin username, and automatically generate all JWT/database secrets:
 ```bash
 chmod +x setup.sh
 ./setup.sh
 ```
+*The setup script will output your randomly generated administrative credentials. Keep them safe.*
 
-### 3. Generate Secrets & Configure Environment
-Open `komodo/.env` and replace the placeholder values. You can generate secure JWT and Webhook secrets using one of these commands on your VPS:
-```bash
-# Option A (Recommended - Hex format)
-openssl rand -hex 32
-
-# Option B (Base64 format)
-openssl rand -base64 32
-```
-
-### 4. Start Infrastructure
-Run the core infrastructure:
+### 3. Start Infrastructure
+At the end of `setup.sh`, you will be prompted to start the containers automatically. Alternatively, you can start the core infrastructure manually:
 ```bash
 # 1. Docker socket security gateway
 docker compose -f socket-proxy/docker-compose.yml up -d
