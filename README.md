@@ -3,7 +3,7 @@
 A lightweight, production-ready VPS template designed for low-end servers.
 
 ## Directory Layout
-* `/ops/vps-architecture` - System infrastructure (Proxy, Logs, Management core, Monitors).
+* `/opt/vps-architecture` - System infrastructure (Proxy, Logs, Management core, Monitors).
 * `/www/<client-site>` - Client web applications hosted on this VPS (cloned separately).
 
 ## Core Infrastructure
@@ -17,13 +17,13 @@ A lightweight, production-ready VPS template designed for low-end servers.
 
 ## Setup & Deployment Instructions
 
-### 1. Clone into `/ops`
+### 1. Clone into `/opt`
 Clone the repository and set ownership to your user:
 ```bash
-sudo mkdir -p /ops
-sudo git clone <your-repo-url> /ops/vps-architecture
-sudo chown -R $USER:$USER /ops/vps-architecture
-cd /ops/vps-architecture
+sudo mkdir -p /opt
+sudo git clone <your-repo-url> /opt/vps-architecture
+sudo chown -R $USER:$USER /opt/vps-architecture
+cd /opt/vps-architecture
 ```
 
 ### 2. Run Setup Script
