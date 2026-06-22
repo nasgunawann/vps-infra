@@ -8,10 +8,9 @@ A lightweight, production-ready VPS template designed for low-end servers.
 
 ## Core Infrastructure
 * **Nginx Proxy Manager (`npm/`)**: Reverse proxy & SSL manager. Public ports `80` and `443` only; admin portal bound to localhost.
-* **Dozzle (`dozzle/`)**: Real-time browser-based logs (connected via secure socket proxy).
 * **Komodo (`komodo/`)**: Container build & deploy server using FerretDB v2 (PostgreSQL DocumentDB).
 * **Uptime Kuma (`uptime/`)**: Uptime and health monitor (accessible via Tailscale VPN tunnel).
-* **Docker Socket Proxy (`socket-proxy/`)**: Restricted TCP gateway for `docker.sock` to prevent Dozzle and Komodo from having root host access.
+* **Docker Socket Proxy (`socket-proxy/`)**: Restricted TCP gateway for `docker.sock` to prevent Komodo from having root host access.
 
 ---
 
@@ -44,7 +43,6 @@ docker compose -f socket-proxy/docker-compose.yml up -d
 docker compose -f npm/docker-compose.yml up -d
 
 # 3. Log viewer, health monitors, and manager
-docker compose -f dozzle/docker-compose.yml up -d
 docker compose -f uptime/docker-compose.yml up -d
 docker compose -f komodo/docker-compose.yml up -d
 ```
@@ -66,7 +64,7 @@ Since NPM's admin port `81` is bound to `127.0.0.1` (localhost) for security, yo
 
 ## Tailscale & Security Integration (Access Lists)
 
-To secure the admin dashboards (NPM admin, Dozzle, Komodo, Uptime Kuma) without exposing them to the public internet:
+To secure the admin dashboards (NPM admin, Komodo, Uptime Kuma) without exposing them to the public internet:
 
 ### 1. Install Tailscale on the VPS host:
 ```bash

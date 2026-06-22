@@ -118,7 +118,6 @@ if [[ "$START_INFRA" =~ ^[Yy]$ ]]; then
     echo -e "\nStarting infrastructure..."
     docker compose -f socket-proxy/docker-compose.yml up -d
     docker compose -f npm/docker-compose.yml up -d
-    docker compose -f dozzle/docker-compose.yml up -d
     docker compose -f uptime/docker-compose.yml up -d
     docker compose -f komodo/docker-compose.yml up -d
     echo -e "\n${GREEN}Infrastructure successfully started!${NC}"
@@ -126,7 +125,6 @@ else
     echo -e "\nSetup completed. You can start the infrastructure manually using:"
     echo -e "  docker compose -f socket-proxy/docker-compose.yml up -d"
     echo -e "  docker compose -f npm/docker-compose.yml up -d"
-    echo -e "  docker compose -f dozzle/docker-compose.yml up -d"
     echo -e "  docker compose -f uptime/docker-compose.yml up -d"
     echo -e "  docker compose -f komodo/docker-compose.yml up -d"
 fi
