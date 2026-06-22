@@ -46,7 +46,22 @@ if [ -f /proc/swaps ]; then
     if [ "$SWAP_TOTAL" -eq 0 ]; then
         echo -e "${RED}Warning: No Swap space detected!${NC}"
         echo -e "Running a 2GB VPS without swap risks database and web app OOM crashes."
-        echo -e "Recommended action: Enable at least 2GB of swap space."
+        read -p "Would you like to automatically create and enable a 2GB swap file? (y/N): " CREATE_SWAP
+        CREATE_SWAP=${CREATE_SWAP:-N}
+        if [[ "$CREATE_SWAP" =~ ^[Yy]$ ]]; then
+            echo "Creating 2GB swap file..."
+            if fallocate -l 2G /swapfile 2>/dev/null || dd if=/dev/zero of=/swapfile bs=1M count=2048; then
+                chmod 600 /swapfile
+                mkswap /swapfile
+                swapon /swapfile
+                if ! grep -q "/swapfile" /etc/fstab; then
+                    echo '/swapfile none swap sw 0 0' >> /etc/fstab
+                fi
+                echo -e "${GREEN}2GB Swap file successfully created and enabled!${NC}"
+            else
+                echo -e "${RED}Failed to create swap file. Please configure swap manually.${NC}"
+            fi
+        fi
     else
         echo -e "${GREEN}Swap space detected: ${SWAP_TOTAL}MB.${NC}"
     fi
