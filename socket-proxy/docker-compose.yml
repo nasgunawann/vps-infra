@@ -26,4 +26,4 @@ services:
 
 networks:
   socket-network:
-    name: socket-network
+    external: true
